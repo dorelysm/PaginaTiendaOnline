@@ -1,0 +1,101 @@
+{% extends "layout.html" %}
+
+{%  block content %}
+<h1>
+    Bienvenid@ {{usuario}} <a href="/cerrar" class="btn btn-danger"> Salir</a>
+</h1>
+
+{% include('modal.html') %}
+<a onclick="cargar_formulario()" class="btn btn-primary"  data-bs-toggle="modal" data-bs-target="#staticBackdrop">Guardar Articulo</a>
+
+<table class="table table-striped">
+    <thead>
+      <tr>
+        <th scope="col">Nombre</th>
+        <th scope="col">Precio</th>
+        <th scope="col" colspan="2"><center>Opciones</center></th>
+      </tr>
+    </thead>
+    <tbody>
+            {% for item in articulos %}
+            <tr>
+                <th scope="row">{{item.Nombre}}</th>
+                <td>$ {{item.Precio}}</td>
+                <td><a onclick="actualizar('{{item.id}}')"  data-bs-toggle="modal" data-bs-target="#staticBackdrop" class="btn btn-primary btn-sm rounded-0" >Actualizar</a></td>
+                <td><a onclick="eliminar('{{item.id}}')" class="btn btn-danger btn-sm rounded-0">eliminar</a></td>
+            </tr>
+            {% endfor %}
+    </tbody>
+  </table>
+
+  <script>
+    function cargar_formulario(){
+        const formulario = `
+                <form action="/guardar" method="POST">
+                  <div class="form-group">
+                    <label for="recipient-name" class="col-form-label">Nombre:</label>
+                    <input type="text" class="form-control" name="Nombre"  value="">
+                  </div>
+                  <div class="form-group">
+                    <label for="message-text" class="col-form-label">Precio:</label>
+                    <input type="text" class="form-control" name="Precio"  value="">
+                  </div>
+                  <div class="modal-footer">
+                    <button  type="submit" class="btn btn-primary">Guardar</button>
+                  </div>
+                </form> 
+        `;
+        $("#fromartc").html(formulario);
+    }
+    function eliminar(id){
+        url = '/eliminar';
+        var request = $.ajax({
+            contentType:"application/json",
+            dataType: "json", //Expected data format from server  
+            method: "GET",
+            data: { id},
+            url: url      
+        });
+        request.done(function( data ) {
+            alert("Datos Eliminado")
+            window.location.href = "/larticulos";                
+        });
+        request.fail(function( jqXHR, textStatus ) {
+            alert( "paso aglo " + textStatus );
+        });
+    }
+    function actualizar(id){
+        url = '/articulos';
+        var request = $.ajax({
+            contentType:"application/json",
+            dataType: "json", //Expected data format from server  
+            method: "GET",
+            data: { id},
+            url: url      
+        });
+        request.done(function( data ) {
+            const formulario = `
+                <form action="/actualizar" method="POST">
+                    <input type="hidden" class="form-control" name="id"  value="${data.id}">
+                  <div class="form-group">
+                    <label for="recipient-name" class="col-form-label">Nombre:</label>
+                    <input type="text" class="form-control" name="Nombre"  value="${data.Nombre}">
+                  </div>
+                  <div class="form-group">
+                    <label for="message-text" class="col-form-label">Precio:</label>
+                    <input type="text" class="form-control" name="Precio"  value="${data.Precio}">
+                  </div>
+                  <div class="modal-footer">
+                    <button  type="submit" class="btn btn-primary">Guardar</button>
+                  </div>
+                </form> 
+        `;
+        $("#fromartc").html(formulario);             
+        });
+        request.fail(function( jqXHR, textStatus ) {
+            alert( "paso aglo " + textStatus );
+        });
+    }
+ </script>
+
+{% endblock %}
